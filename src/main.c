@@ -11,6 +11,61 @@ typedef uint8_t bool_t;
 #define FALSE 0
 
 
+// ---- EEPROM
+
+#define EEPROM_ADDR 0x00 // EEPROM address to store and read the value
+#define EEPROM_COOKIE 0xAB
+
+static void EEPROM_write(uint16_t addr, uint8_t data)
+{
+    // Wait for completion of previous write operation
+    while (EECR & (1 << EEPE));
+
+    // Set up address and data registers
+    EEAR = addr;
+    EEDR = data;
+
+    // Enable EEPROM write
+    EECR |= (1 << EEMPE);
+
+    // Start EEPROM write
+    EECR |= (1 << EEPE);
+}
+
+static uint8_t EEPROM_read(uint16_t addr)
+{
+    // Wait for completion of previous write operation
+    while (EECR & (1 << EEPE));
+
+    // Set up address register
+    EEAR = addr;
+
+    // Start EEPROM read
+    EECR |= (1 << EERE);
+
+    // Return data from data register
+    return EEDR;
+}
+
+static uint8_t nvmReadValue(uint8_t def)
+{
+	if (EEPROM_read(EEPROM_ADDR) == EEPROM_COOKIE)
+	{
+		return EEPROM_read(EEPROM_ADDR + 1);
+	}
+	return def;
+}
+
+static void nvmWriteValue(uint8_t value)
+{
+	if (EEPROM_read(EEPROM_ADDR) != EEPROM_COOKIE)
+	{
+		EEPROM_write(EEPROM_ADDR, EEPROM_COOKIE);
+	}
+	EEPROM_write(EEPROM_ADDR + 1, value);
+}
+
+
 
 // ---- HAL
 
@@ -325,6 +380,8 @@ int main(void)
 	ioInit();
 	comparatorInit();
 	timerInit();
+	
+	Mode = nvmReadValue(0) % MODES;
 
 	// Globally enable interrupts
     sei(); 
@@ -339,6 +396,7 @@ int main(void)
 			SwitchPushed = FALSE;
 
 			Mode = (Mode + 1) % MODES;
+			nvmWriteValue(Mode);
 		}
 
 

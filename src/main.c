@@ -92,7 +92,7 @@ typedef struct {
 
 } cropSpec_t;
 
-#define MODES 6
+#define MODES 4
 
 #define DTV_EARLY_START 20
 
@@ -101,56 +101,37 @@ static const cropSpec_t CropSpecs[MODES] =
 	// MODE: 0, no cropping at all
 	{ 0, 0, 0, 0, 0, 0, 0, 0}, 
 
-	// MODE: 1 C64, only crop left line
+	// MODE: 1 C64, only crop VIC-2 artifact white line
 	{ 7, 307,    // LineFieldStart, LineFieldEnd
 	  0, 400,    // LineScreenStart, LineScreenEnd
 	 99,         // CropStart
 	 1055,       // BorderCropLength
-	 35, 12      // ScreenCropLength, ScreenCropAlternate
+	 12, 0       // ScreenCropLength, ScreenCropAlternate
 	},
 
-	// MODE: 2, full C64 cropping
+	// MODE: 2 C64, crop left part of screen to be symmetrical with right part
 	{ 7, 307,    // LineFieldStart, LineFieldEnd
-	 25, 293,    // LineScreenStart, LineScreenEnd
-	 99,         // CropStart
-	 1055,       // BorderCropLength
-	 35, 12      // ScreenCropLength, ScreenCropAlternate
-	},
-
-	// MODE: 3, full C64 cropping without alternating left (a)   <--- best mode for C64!
-	{ 7, 307,    // LineFieldStart, LineFieldEnd
-	 25, 293,    // LineScreenStart, LineScreenEnd
+	  0, 400,    // LineScreenStart, LineScreenEnd
 	 99,         // CropStart
 	 1055,       // BorderCropLength
 	 35, 0       // ScreenCropLength, ScreenCropAlternate
 	},
 
-	// MODE: 4, full C64 cropping without alternating left (b)
+	// MODE: 3, also crop top and bottom
 	{ 7, 307,    // LineFieldStart, LineFieldEnd
 	 25, 293,    // LineScreenStart, LineScreenEnd
 	 99,         // CropStart
 	 1055,       // BorderCropLength
-	 41, 0       // ScreenCropLength, ScreenCropAlternate
-	},
-
-	// MODE: 5, full DTV cropping with alternating left
-	{ 7, 307,    // LineFieldStart, LineFieldEnd
-	 25, 293,    // LineScreenStart, LineScreenEnd
-	 99 - DTV_EARLY_START,         // CropStart
-	 1055 + DTV_EARLY_START,       // BorderCropLength
-	 35 + DTV_EARLY_START, 12      // ScreenCropLength, ScreenCropAlternate
-	},
-
+	 35, 0       // ScreenCropLength, ScreenCropAlternate
+	}
 };
-
-// Comparator
 
 static uint16_t CropStart;
 static uint16_t CropLength;
 
 static void setupCrop(uint16_t field_line, const cropSpec_t *spec)
 {
-	if ((field_line > spec->LineFieldEnd) || (field_line < spec->LineFieldStart))
+	if ((field_line > spec->LineFieldEnd) || (field_line < spec->LineFieldStart) || (spec->CropStart == 0))
 	{
 		// Outside field, don't crop
 		CropStart = 0;
@@ -210,13 +191,12 @@ ISR(ANA_COMP_vect)
 
 	if (x > 50)
 	{
-		
 		// Timeout, this is a long pulse
 
+		// There are multiple pulses like this, only increment field count first time
 		if (NewField == FALSE)
 		{
 			NewField = TRUE;
-			// There are multiple pulses like this, first time
 			FieldLine = 0;
 			FieldCount += 1;
 
@@ -240,18 +220,18 @@ ISR(ANA_COMP_vect)
 	}
 	else
 	{
-		uint16_t d;
-		d = ICR1;
-
 		if (CropStart != 0)
 		{
-			d += CropStart;
+			uint16_t ocr1, ocr2;
 
-			OCR1A = d;
+			ocr1 = ICR1 + CropStart;
+			ocr2 = ocr1 + CropLength;
 
-			while (TCNT1 < d);
+			OCR1A = ocr1;
+
+			while (TCNT1 < ocr1);
 			
-			OCR1A = d + CropLength;
+			OCR1A = ocr2;
 		}
 
 		// Prepare next line now
@@ -263,7 +243,7 @@ ISR(ANA_COMP_vect)
 		}
 		else
 		{
-			// Way too many lines, don't crop anything
+			// Way too many lines, something is wrong, don't crop anything
 			CropStart = 0;
 		}
 

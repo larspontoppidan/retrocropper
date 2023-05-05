@@ -1,0 +1,10 @@
+Farnell: 1009510 - HAMMOND 1551RBK Plastic Enclosure, PCB Box, ABS, 50 mm, 50 mm, 20 mm, IP54
+
+Farnell: 1280701 - MULTICOMP PRO PSG01546 RCA (Phono) Audio / Video Connector, 3 Contacts, Jack, Gold Plated Contacts, Metal Body, White
+
+Farnell: 2673246 - GCT (GLOBAL CONNECTOR TECHNOLOGY) DCJ200-10-A-K1-K DC PowerConnector, Jack, 5 A, 2 mm, PCB Mount, Through Hole
+
+Farnell: 1972173 - MICROCHIP ATTINY84A-SSU 8 Bit MCU, AVR ATtiny Family ATtiny84 Series Microcontrollers, AVR, 20 MHz, 8 KB, 14 Pins, SOIC
+
+Farnell: 2518829 - ANALOG DEVICES MAX4310ESA+ Video Multiplexer, 2:1, 280MHz Bandwidth, 4V to 10.5V, -95dB CrossTalk, SOIC-8
+

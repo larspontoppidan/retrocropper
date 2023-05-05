@@ -18,7 +18,7 @@ set(PROG_TYPE avrispmkII)
 
 # AVR Fuses and lockbits
 set(L_FUSE 0xFE)
-set(H_FUSE 0xDF)
+set(H_FUSE 0xD7)
 set(E_FUSE 0xFF)
 
 

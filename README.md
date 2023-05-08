@@ -7,7 +7,7 @@ RetroCropper is an easy to make device that can perform horizontal and vertical 
 
 The RetroCropper currently only works with PAL signals. NTSC signals should be possible to support with software enhancements.
 
-Read a full description of the project here: https://larsee.com/blog/2023/5/retrocropper
+Read a full description of the project here: https://larsee.com/blog/2023/05/retrocropper
 
 ## Hardware
 

@@ -2,8 +2,8 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Project name
-project("Retro Scaler")
-set(PRODUCT_NAME retro_scaler)
+project("RetroCropper")
+set(PRODUCT_NAME retrocropper)
 
 include_directories("src")
 
